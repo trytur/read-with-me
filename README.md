@@ -33,7 +33,7 @@
 
 ## 레포지토리 구조
 
-\```
+```
 readwithme/
 ├── README.md
 ├── docs/
@@ -42,4 +42,4 @@ readwithme/
 │   ├── 유스케이스.md
 │   └── ERD.md
 └── src/
-\```
+```
