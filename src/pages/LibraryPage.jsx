@@ -60,6 +60,16 @@ function LibraryPage() {
   const [editingBook, setEditingBook] = useState(null);
   const [editForm, setEditForm] = useState(null);
   const [editError, setEditError] = useState("");
+  const [deletingBook, setDeletingBook] = useState(null);
+
+  const handleDeleteConfirm = () => {
+    const nextBooks = books.filter(
+      (book) => book.recordNo !== deletingBook.recordNo
+    );
+    setBooks(nextBooks);
+    saveBooksToStorage(nextBooks);
+    setDeletingBook(null);
+  };
 
   const handleEditOpen = (book) => {
     setEditingBook(book);
@@ -234,12 +244,20 @@ function LibraryPage() {
                   <h3 className="book-card-title">{book.title}</h3>
                   <p className="book-card-author">{book.author}</p>
                 </div>
-                <button
-                  className="card-action-button"
-                  onClick={() => handleEditOpen(book)}
-                >
-                  수정
-                </button>
+                <div className="card-actions">
+                  <button
+                    className="card-action-button"
+                    onClick={() => handleEditOpen(book)}
+                  >
+                    수정
+                  </button>
+                  <button
+                    className="card-action-button card-action-button-danger"
+                    onClick={() => setDeletingBook(book)}
+                  >
+                    삭제
+                  </button>
+                </div>
               </div>
 
               <div className="book-card-badges">
@@ -334,6 +352,29 @@ function LibraryPage() {
               <button type="submit" className="primary-button">저장</button>
             </div>
           </form>
+        </div>
+      </div>
+    )}
+    {deletingBook && (
+      <div className="modal-overlay" onClick={() => setDeletingBook(null)}>
+        <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+          <h3 className="section-title">독서 기록 삭제</h3>
+          <p className="confirm-message">
+            <strong>"{deletingBook.title}"</strong>을(를) 정말 삭제하시겠습니까?
+            <br />
+            삭제된 기록은 복구할 수 없습니다.
+          </p>
+          <div className="confirm-actions">
+            <button
+              className="secondary-button"
+              onClick={() => setDeletingBook(null)}
+            >
+              취소
+            </button>
+            <button className="danger-button" onClick={handleDeleteConfirm}>
+              삭제
+            </button>
+          </div>
         </div>
       </div>
     )}
