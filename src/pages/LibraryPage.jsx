@@ -9,22 +9,61 @@ const STATUS_CLASS = {
   [BOOK_STATUS.FINISHED]: "status-finished",
 };
 
+const SORT_OPTIONS = [
+  { value: "title-asc", label: "제목 가나다순" },
+  { value: "date-desc", label: "최근 읽은 날짜 최신순" },
+  { value: "date-asc", label: "최근 읽은 날짜 오래된 순" },
+  { value: "progress-desc", label: "진도율 높은 순" },
+  { value: "rating-desc", label: "별점 높은 순" },
+];
+
+function sortBooks(books, sortOption) {
+  return [...books].sort((a, b) => {
+    switch (sortOption) {
+      case "title-asc":
+        return a.title.localeCompare(b.title, "ko");
+      case "date-desc":
+        if (!a.recentReadDate && !b.recentReadDate) return 0;
+        if (!a.recentReadDate) return 1;
+        if (!b.recentReadDate) return -1;
+        return b.recentReadDate.localeCompare(a.recentReadDate);
+      case "date-asc":
+        if (!a.recentReadDate && !b.recentReadDate) return 0;
+        if (!a.recentReadDate) return 1;
+        if (!b.recentReadDate) return -1;
+        return a.recentReadDate.localeCompare(b.recentReadDate);
+      case "progress-desc":
+        return b.progressRate - a.progressRate;
+      case "rating-desc":
+        if (a.rating == null && b.rating == null) return 0;
+        if (a.rating == null) return 1;
+        if (b.rating == null) return -1;
+        return b.rating - a.rating;
+      default:
+        return 0;
+    }
+  });
+}
+
 function LibraryPage() {
   const [books] = useState(() => getBooksFromStorage());
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("title-asc");
 
   const filteredBooks = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return books;
+    let result = books;
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (book) =>
+          book.title.toLowerCase().includes(query) ||
+          book.author.toLowerCase().includes(query)
+      );
     }
 
-    const query = searchQuery.trim().toLowerCase();
-    return books.filter(
-      (book) =>
-        book.title.toLowerCase().includes(query) ||
-        book.author.toLowerCase().includes(query)
-    );
-  }, [books, searchQuery]);
+    return sortBooks(result, sortOption);
+  }, [books, searchQuery, sortOption]);
 
   return (
     <section className="page-section">
@@ -39,13 +78,26 @@ function LibraryPage() {
         <span className="count-badge">총 {books.length}권</span>
       </div>
 
-      <input
-        type="search"
-        className="search-input"
-        placeholder="제목 또는 저자로 검색"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+      <div className="library-controls">
+        <input
+          type="search"
+          className="search-input"
+          placeholder="제목 또는 저자로 검색"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className="sort-select"
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {filteredBooks.length === 0 ? (
         <EmptyState
