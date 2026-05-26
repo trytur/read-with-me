@@ -13,7 +13,7 @@ function ReadingRecordPage() {
       <div className="card">
         <p className="empty-title">독서 기록 탭 개발 예정</p>
         <p className="empty-description">
-          이 영역은 feat/history 브랜치에서 실제 입력 폼과 저장 기능을 구현합니다.
+          이 영역은 feat/record 브랜치에서 실제 입력 폼과 저장 기능을 구현합니다.
         </p>
       </div>
     </section>
