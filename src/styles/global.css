@@ -444,8 +444,25 @@ button {
 
 .book-card-header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.card-action-button {
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  background: var(--color-surface);
+  color: var(--color-subtext);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.card-action-button:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
 }
 
 .book-card-title {
@@ -516,6 +533,68 @@ button {
   margin: 0;
   font-size: 13px;
   color: var(--color-subtext);
+}
+
+/* ── Modal ── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 39, 35, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.modal {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 64px rgba(44, 39, 35, 0.2);
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modal-close-button {
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  color: var(--color-subtext);
+  line-height: 1;
+  padding: 4px 8px;
+}
+
+.modal-close-button:hover {
+  color: var(--color-text);
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border);
 }
 
 @media (max-width: 860px) {

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import EmptyState from "../components/common/EmptyState";
-import { getBooksFromStorage } from "../utils/bookStorage";
-import { BOOK_STATUS } from "../utils/bookStatus";
+import { getBooksFromStorage, saveBooksToStorage } from "../utils/bookStorage";
+import { BOOK_STATUS, getBookStatus } from "../utils/bookStatus";
 
 const STATUS_CLASS = {
   [BOOK_STATUS.WANT_TO_READ]: "status-want",
@@ -53,10 +53,98 @@ function sortBooks(books, sortOption) {
 }
 
 function LibraryPage() {
-  const [books] = useState(() => getBooksFromStorage());
+  const [books, setBooks] = useState(() => getBooksFromStorage());
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("title-asc");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [editingBook, setEditingBook] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [editError, setEditError] = useState("");
+
+  const handleEditOpen = (book) => {
+    setEditingBook(book);
+    setEditForm({
+      title: book.title,
+      author: book.author,
+      publisher: book.publisher || "",
+      progressRate: String(book.progressRate),
+      startDate: book.startDate || "",
+      finishDate: book.finishDate || "",
+      recentReadDate: book.recentReadDate || "",
+      rating: book.rating != null ? String(book.rating) : "",
+      impression: book.memo?.impression || "",
+      quote: book.memo?.quote || "",
+      oneLineReview: book.memo?.oneLineReview || "",
+    });
+    setEditError("");
+  };
+
+  const handleEditClose = () => {
+    setEditingBook(null);
+    setEditForm(null);
+    setEditError("");
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+    if (editError) setEditError("");
+  };
+
+  const validateEditForm = () => {
+    if (!editForm.title.trim()) return "제목을 입력해주세요.";
+    if (!editForm.author.trim()) return "저자를 입력해주세요.";
+    if (editForm.progressRate !== "") {
+      const rate = Number(editForm.progressRate);
+      if (Number.isNaN(rate) || rate < 0 || rate > 100)
+        return "진도율은 0부터 100 사이의 숫자로 입력해주세요.";
+    }
+    if (editForm.rating !== "") {
+      const rating = Number(editForm.rating);
+      if (Number.isNaN(rating) || rating < 1 || rating > 5 || rating % 0.5 !== 0)
+        return "별점은 1부터 5 사이에서 0.5 단위로 입력해주세요.";
+    }
+    return "";
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    const validationMessage = validateEditForm();
+    if (validationMessage) {
+      setEditError(validationMessage);
+      return;
+    }
+
+    const progressRate =
+      editForm.progressRate === "" ? 0 : Number(editForm.progressRate);
+
+    const updatedBook = {
+      ...editingBook,
+      title: editForm.title.trim(),
+      author: editForm.author.trim(),
+      publisher: editForm.publisher.trim(),
+      progressRate,
+      status: getBookStatus(progressRate),
+      startDate: editForm.startDate,
+      finishDate: editForm.finishDate,
+      recentReadDate: editForm.recentReadDate,
+      rating: editForm.rating === "" ? null : Number(editForm.rating),
+      updatedAt: new Date().toISOString(),
+      memo: {
+        ...editingBook.memo,
+        impression: editForm.impression.trim(),
+        quote: editForm.quote.trim(),
+        oneLineReview: editForm.oneLineReview.trim(),
+      },
+    };
+
+    const nextBooks = books.map((book) =>
+      book.recordNo === editingBook.recordNo ? updatedBook : book
+    );
+    setBooks(nextBooks);
+    saveBooksToStorage(nextBooks);
+    handleEditClose();
+  };
 
   const filteredBooks = useMemo(() => {
     let result = books;
@@ -78,6 +166,7 @@ function LibraryPage() {
   }, [books, searchQuery, sortOption, statusFilter]);
 
   return (
+    <>
     <section className="page-section">
       <div className="page-header">
         <div>
@@ -141,8 +230,16 @@ function LibraryPage() {
           {filteredBooks.map((book) => (
             <div key={book.recordNo} className="book-card">
               <div className="book-card-header">
-                <h3 className="book-card-title">{book.title}</h3>
-                <p className="book-card-author">{book.author}</p>
+                <div>
+                  <h3 className="book-card-title">{book.title}</h3>
+                  <p className="book-card-author">{book.author}</p>
+                </div>
+                <button
+                  className="card-action-button"
+                  onClick={() => handleEditOpen(book)}
+                >
+                  수정
+                </button>
               </div>
 
               <div className="book-card-badges">
@@ -172,6 +269,75 @@ function LibraryPage() {
         </div>
       )}
     </section>
+
+    {editingBook && editForm && (
+      <div className="modal-overlay" onClick={handleEditClose}>
+        <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3 className="section-title">독서 기록 수정</h3>
+            <button className="modal-close-button" onClick={handleEditClose}>
+              ×
+            </button>
+          </div>
+          <form onSubmit={handleEditSubmit}>
+            <div className="modal-body">
+              <div className="form-grid">
+                <label className="form-field">
+                  <span>제목 <strong className="required">*</strong></span>
+                  <input type="text" name="title" value={editForm.title} onChange={handleEditChange} />
+                </label>
+                <label className="form-field">
+                  <span>저자 <strong className="required">*</strong></span>
+                  <input type="text" name="author" value={editForm.author} onChange={handleEditChange} />
+                </label>
+                <label className="form-field">
+                  <span>출판사</span>
+                  <input type="text" name="publisher" value={editForm.publisher} onChange={handleEditChange} />
+                </label>
+                <label className="form-field">
+                  <span>진도율</span>
+                  <input type="number" name="progressRate" value={editForm.progressRate} onChange={handleEditChange} min="0" max="100" step="1" />
+                </label>
+                <label className="form-field">
+                  <span>별점</span>
+                  <input type="number" name="rating" value={editForm.rating} onChange={handleEditChange} min="1" max="5" step="0.5" />
+                </label>
+                <label className="form-field">
+                  <span>한줄평</span>
+                  <input type="text" name="oneLineReview" value={editForm.oneLineReview} onChange={handleEditChange} maxLength="255" />
+                </label>
+                <label className="form-field">
+                  <span>독서 시작일</span>
+                  <input type="date" name="startDate" value={editForm.startDate} onChange={handleEditChange} />
+                </label>
+                <label className="form-field">
+                  <span>완독일</span>
+                  <input type="date" name="finishDate" value={editForm.finishDate} onChange={handleEditChange} />
+                </label>
+                <label className="form-field">
+                  <span>최근 읽은 날짜</span>
+                  <input type="date" name="recentReadDate" value={editForm.recentReadDate} onChange={handleEditChange} />
+                </label>
+              </div>
+              <label className="form-field full-width">
+                <span>느낀점</span>
+                <textarea name="impression" value={editForm.impression} onChange={handleEditChange} maxLength="1000" />
+              </label>
+              <label className="form-field full-width">
+                <span>기록하고 싶은 구절</span>
+                <textarea name="quote" value={editForm.quote} onChange={handleEditChange} maxLength="1000" />
+              </label>
+              {editError && <p className="error-message">{editError}</p>}
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="secondary-button" onClick={handleEditClose}>취소</button>
+              <button type="submit" className="primary-button">저장</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
