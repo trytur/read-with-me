@@ -358,6 +358,33 @@ button {
 
 /* ── Library page ── */
 
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 6px 16px;
+  background: var(--color-surface);
+  color: var(--color-subtext);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.filter-tab:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.filter-tab.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
 .library-controls {
   display: flex;
   gap: 12px;

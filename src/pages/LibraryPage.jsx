@@ -9,6 +9,13 @@ const STATUS_CLASS = {
   [BOOK_STATUS.FINISHED]: "status-finished",
 };
 
+const STATUS_FILTERS = [
+  { value: "all", label: "전체" },
+  { value: BOOK_STATUS.WANT_TO_READ, label: "읽고 싶음" },
+  { value: BOOK_STATUS.READING, label: "읽는 중" },
+  { value: BOOK_STATUS.FINISHED, label: "완독" },
+];
+
 const SORT_OPTIONS = [
   { value: "title-asc", label: "제목 가나다순" },
   { value: "date-desc", label: "최근 읽은 날짜 최신순" },
@@ -49,9 +56,14 @@ function LibraryPage() {
   const [books] = useState(() => getBooksFromStorage());
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("title-asc");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const filteredBooks = useMemo(() => {
     let result = books;
+
+    if (statusFilter !== "all") {
+      result = result.filter((book) => book.status === statusFilter);
+    }
 
     if (searchQuery.trim()) {
       const query = searchQuery.trim().toLowerCase();
@@ -63,7 +75,7 @@ function LibraryPage() {
     }
 
     return sortBooks(result, sortOption);
-  }, [books, searchQuery, sortOption]);
+  }, [books, searchQuery, sortOption, statusFilter]);
 
   return (
     <section className="page-section">
@@ -76,6 +88,18 @@ function LibraryPage() {
           </p>
         </div>
         <span className="count-badge">총 {books.length}권</span>
+      </div>
+
+      <div className="filter-tabs">
+        {STATUS_FILTERS.map((filter) => (
+          <button
+            key={filter.value}
+            className={`filter-tab${statusFilter === filter.value ? " active" : ""}`}
+            onClick={() => setStatusFilter(filter.value)}
+          >
+            {filter.label}
+          </button>
+        ))}
       </div>
 
       <div className="library-controls">
@@ -104,12 +128,12 @@ function LibraryPage() {
           title={
             books.length === 0
               ? "아직 저장된 독서 기록이 없습니다."
-              : "검색 결과가 없습니다."
+              : "조건에 맞는 도서가 없습니다."
           }
           description={
             books.length === 0
               ? "독서 기록 탭에서 첫 책을 추가해보세요."
-              : "다른 검색어를 시도해보세요."
+              : "다른 검색어나 필터를 시도해보세요."
           }
         />
       ) : (
