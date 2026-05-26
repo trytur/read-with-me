@@ -55,7 +55,7 @@ function sortBooks(books, sortOption) {
 function LibraryPage() {
   const [books, setBooks] = useState(() => getBooksFromStorage());
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOption, setSortOption] = useState("title-asc");
+  const [sortOption, setSortOption] = useState("date-desc");
   const [statusFilter, setStatusFilter] = useState("all");
   const [editingBook, setEditingBook] = useState(null);
   const [editForm, setEditForm] = useState(null);
