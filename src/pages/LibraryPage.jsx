@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import EmptyState from "../components/common/EmptyState";
 import { getBooksFromStorage } from "../utils/bookStorage";
 import { BOOK_STATUS } from "../utils/bookStatus";
@@ -11,6 +11,20 @@ const STATUS_CLASS = {
 
 function LibraryPage() {
   const [books] = useState(() => getBooksFromStorage());
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredBooks = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return books;
+    }
+
+    const query = searchQuery.trim().toLowerCase();
+    return books.filter(
+      (book) =>
+        book.title.toLowerCase().includes(query) ||
+        book.author.toLowerCase().includes(query)
+    );
+  }, [books, searchQuery]);
 
   return (
     <section className="page-section">
@@ -25,14 +39,30 @@ function LibraryPage() {
         <span className="count-badge">총 {books.length}권</span>
       </div>
 
-      {books.length === 0 ? (
+      <input
+        type="search"
+        className="search-input"
+        placeholder="제목 또는 저자로 검색"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+
+      {filteredBooks.length === 0 ? (
         <EmptyState
-          title="아직 저장된 독서 기록이 없습니다."
-          description="독서 기록 탭에서 첫 책을 추가해보세요."
+          title={
+            books.length === 0
+              ? "아직 저장된 독서 기록이 없습니다."
+              : "검색 결과가 없습니다."
+          }
+          description={
+            books.length === 0
+              ? "독서 기록 탭에서 첫 책을 추가해보세요."
+              : "다른 검색어를 시도해보세요."
+          }
         />
       ) : (
         <div className="book-grid">
-          {books.map((book) => (
+          {filteredBooks.map((book) => (
             <div key={book.recordNo} className="book-card">
               <div className="book-card-header">
                 <h3 className="book-card-title">{book.title}</h3>
