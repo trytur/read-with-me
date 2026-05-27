@@ -1,0 +1,129 @@
+/* 통계 탭 레이아웃 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* 요약 카드 */
+.stats-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stats-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+}
+
+.stats-summary-label {
+  font-size: 14px;
+  color: var(--color-subtext);
+  font-weight: 600;
+}
+
+.stats-summary-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+/* 달력 */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.calendar-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.calendar-nav-btn {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  color: var(--color-subtext);
+}
+
+.calendar-nav-btn:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.calendar-day-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-subtext);
+  padding: 4px 0;
+}
+
+.calendar-day {
+  font-size: 13px;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+}
+
+.calendar-day.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.calendar-day.empty {
+  visibility: hidden;
+}
+
+/* 도넛 차트 */
+.donut-chart-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.donut-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* 반응형 */
+@media (max-width: 860px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
