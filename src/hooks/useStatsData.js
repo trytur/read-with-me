@@ -25,8 +25,14 @@ function useStatsData() {
     완독: books.filter((b) => b.status === "완독").length,
   };
 
-  // 고유 독서 날짜 수 (총 독서 일수)
-  const allDateLogs = books.flatMap((b) => b.dateLogs ?? []);
+  // dateLogs에서 readDate 추출
+  const allDateLogs = books.flatMap((b) =>
+    Array.isArray(b.dateLogs)
+      ? b.dateLogs.map((log) => log.readDate).filter(Boolean)
+      : []
+  );
+
+  // 고유 독서 날짜 수
   const uniqueDates = new Set(allDateLogs);
   const totalReadDays = uniqueDates.size;
 
