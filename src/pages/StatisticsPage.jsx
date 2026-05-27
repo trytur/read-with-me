@@ -1,6 +1,13 @@
-import EmptyState from "../components/common/EmptyState";
+import useStatsData from "../hooks/useStatsData";
+import StatsSummary from "../components/stats/StatsSummary";
+import AttendanceCalendar from "../components/stats/AttendanceCalendar";
+import DonutChart from "../components/stats/DonutChart";
+import "../styles/stats.css";
 
 function StatisticsPage() {
+  const { averageProgress, statusCount, totalReadDays, allDateLogs } =
+    useStatsData();
+
   return (
     <section className="page-section">
       <div className="page-header">
@@ -12,11 +19,21 @@ function StatisticsPage() {
         </div>
       </div>
 
+      <div className="stats-grid">
+        <div className="card">
+          <AttendanceCalendar allDateLogs={allDateLogs} />
+        </div>
+        <div className="card">
+          <StatsSummary
+            averageProgress={averageProgress}
+            statusCount={statusCount}
+            totalReadDays={totalReadDays}
+          />
+        </div>
+      </div>
+
       <div className="card">
-        <EmptyState
-          title="통계 탭 개발 예정"
-          description="이 영역은 통계 담당자가 이어서 구현합니다."
-        />
+        <DonutChart statusCount={statusCount} />
       </div>
     </section>
   );
