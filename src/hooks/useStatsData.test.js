@@ -66,4 +66,43 @@ describe("useStatsData 훅", () => {
       expect(result.current.averageProgress).toBe(42);
     });
   });
+
+  describe("상태별 도서 수 계산", () => {
+    const books = [
+      { status: "읽고 싶음" },
+      { status: "읽고 싶음" },
+      { status: "읽는 중" },
+      { status: "읽는 중" },
+      { status: "읽는 중" },
+      { status: "완독" },
+    ];
+
+    beforeEach(() => {
+      localStorage.setItem("readWithMeBooks", JSON.stringify(books));
+    });
+
+    it("읽고 싶음 상태 도서 수를 올바르게 카운트한다", async () => {
+      const { result } = renderHook(() => useStatsData());
+
+      await act(async () => {});
+
+      expect(result.current.statusCount.읽고싶음).toBe(2);
+    });
+
+    it("읽는 중 상태 도서 수를 올바르게 카운트한다", async () => {
+      const { result } = renderHook(() => useStatsData());
+
+      await act(async () => {});
+
+      expect(result.current.statusCount.읽는중).toBe(3);
+    });
+
+    it("완독 상태 도서 수를 올바르게 카운트한다", async () => {
+      const { result } = renderHook(() => useStatsData());
+
+      await act(async () => {});
+
+      expect(result.current.statusCount.완독).toBe(1);
+    });
+  });
 });
