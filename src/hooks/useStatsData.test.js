@@ -35,4 +35,35 @@ describe("useStatsData 훅", () => {
       expect(result.current.totalReadDays).toBe(0);
     });
   });
+
+  describe("평균 진도율 계산", () => {
+    it("진도율 50, 100인 책 2권일 때 평균 75를 반환한다", async () => {
+      localStorage.setItem(
+        "readWithMeBooks",
+        JSON.stringify([
+          { progressRate: 50 },
+          { progressRate: 100 },
+        ])
+      );
+
+      const { result } = renderHook(() => useStatsData());
+
+      await act(async () => {});
+
+      expect(result.current.averageProgress).toBe(75);
+    });
+
+    it("책이 1권일 때 해당 진도율을 그대로 반환한다", async () => {
+      localStorage.setItem(
+        "readWithMeBooks",
+        JSON.stringify([{ progressRate: 42 }])
+      );
+
+      const { result } = renderHook(() => useStatsData());
+
+      await act(async () => {});
+
+      expect(result.current.averageProgress).toBe(42);
+    });
+  });
 });
