@@ -1,7 +1,10 @@
 export default {
-  testEnvironment: 'node',
-  testMatch: ['**/*.test.js'],
+  testEnvironment: "jsdom",
   transform: {
-    '^.+\\.jsx?$': 'babel-jest',
+    "^.+\\.[jt]sx?$": "babel-jest",
   },
+  moduleNameMapper: {
+    "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+  },
+  setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
 };
