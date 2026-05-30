@@ -105,4 +105,70 @@ describe("useStatsData 훅", () => {
       expect(result.current.statusCount.완독).toBe(1);
     });
   });
+
+  describe("총 독서 일수 계산", () => {
+    it("중복 날짜를 제거하고 고유 날짜 수를 반환한다", async () => {
+      localStorage.setItem(
+        "readWithMeBooks",
+        JSON.stringify([
+          {
+            dateLogs: [
+              { readDate: "2025-01-01" },
+              { readDate: "2025-01-01" },
+              { readDate: "2025-01-02" },
+            ],
+          },
+          {
+            dateLogs: [{ readDate: "2025-01-02" }, { readDate: "2025-01-03" }],
+          },
+        ])
+      );
+
+      const { result } = renderHook(() => useStatsData());
+
+      await act(async () => {});
+
+      expect(result.current.totalReadDays).toBe(3);
+    });
+
+    it("dateLogs가 없는 책이 있어도 오류 없이 처리한다", async () => {
+      localStorage.setItem(
+        "readWithMeBooks",
+        JSON.stringify([
+          { dateLogs: [{ readDate: "2025-01-01" }] },
+          {},
+          { dateLogs: null },
+        ])
+      );
+
+      const { result } = renderHook(() => useStatsData());
+
+      await act(async () => {});
+
+      expect(result.current.totalReadDays).toBe(1);
+    });
+
+    it("dateLogs의 readDate 필드 기준으로 날짜를 추출한다", async () => {
+      localStorage.setItem(
+        "readWithMeBooks",
+        JSON.stringify([
+          {
+            dateLogs: [
+              { readDate: "2025-03-10", otherField: "무시됨" },
+              { readDate: "2025-03-11" },
+            ],
+          },
+        ])
+      );
+
+      const { result } = renderHook(() => useStatsData());
+
+      await act(async () => {});
+
+      expect(result.current.totalReadDays).toBe(2);
+      expect(result.current.allDateLogs).toEqual(
+        expect.arrayContaining(["2025-03-10", "2025-03-11"])
+      );
+    });
+  });
 });
